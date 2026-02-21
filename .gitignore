@@ -5,3 +5,4 @@ dist
 .next
 prisma/*.db
 prisma/*.db-journal
+*.tsbuildinfo

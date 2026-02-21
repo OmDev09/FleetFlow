@@ -135,39 +135,7 @@ export default function CommandCenterPage() {
       )}
 
       <div className="card overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex flex-wrap gap-3 items-center">
-          <span className="text-sm font-medium text-slate-700">Filters:</span>
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="input-field w-auto min-w-[100px]"
-          >
-            <option value="">All types</option>
-            <option value="TRUCK">Truck</option>
-            <option value="VAN">Van</option>
-            <option value="BIKE">Bike</option>
-          </select>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="input-field w-auto min-w-[120px]"
-          >
-            <option value="">All statuses</option>
-            <option value="AVAILABLE">Available</option>
-            <option value="ON_TRIP">On Trip</option>
-            <option value="IN_SHOP">In Shop</option>
-            <option value="OUT_OF_SERVICE">Out of Service</option>
-          </select>
-          <select
-            value={filterRegion}
-            onChange={(e) => setFilterRegion(e.target.value)}
-            className="input-field w-auto min-w-[100px]"
-          >
-            <option value="">All regions</option>
-            <option value="North">North</option>
-            <option value="South">South</option>
-            <option value="Central">Central</option>
-          </select>
+        <div className="p-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
           <input
             type="text"
             value={search}
@@ -175,18 +143,52 @@ export default function CommandCenterPage() {
             className="input-field w-auto min-w-[180px]"
             placeholder="Search"
           />
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="input-field w-auto min-w-[160px]"
-          >
-            <option value="tripNo">Sort by: Trip No</option>
-            <option value="vehicleId">Sort by: Vehicle ID</option>
-            <option value="vehicleName">Sort by: Vehicle Name/Model</option>
-            <option value="type">Sort by: Type</option>
-            <option value="region">Sort by: Region</option>
-            <option value="status">Sort by: Status</option>
-          </select>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm font-medium text-slate-700">Filters:</span>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="input-field w-auto min-w-[100px]"
+            >
+              <option value="">All types</option>
+              <option value="TRUCK">Truck</option>
+              <option value="VAN">Van</option>
+              <option value="BIKE">Bike</option>
+            </select>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="input-field w-auto min-w-[120px]"
+            >
+              <option value="">All statuses</option>
+              <option value="AVAILABLE">Available</option>
+              <option value="ON_TRIP">On Trip</option>
+              <option value="IN_SHOP">In Shop</option>
+              <option value="OUT_OF_SERVICE">Out of Service</option>
+            </select>
+            <select
+              value={filterRegion}
+              onChange={(e) => setFilterRegion(e.target.value)}
+              className="input-field w-auto min-w-[100px]"
+            >
+              <option value="">All regions</option>
+              <option value="North">North</option>
+              <option value="South">South</option>
+              <option value="Central">Central</option>
+            </select>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="input-field w-auto min-w-[160px]"
+            >
+              <option value="tripNo">Sort by: Trip No</option>
+              <option value="vehicleId">Sort by: Vehicle ID</option>
+              <option value="vehicleName">Sort by: Vehicle Name/Model</option>
+              <option value="type">Sort by: Type</option>
+              <option value="region">Sort by: Region</option>
+              <option value="status">Sort by: Status</option>
+            </select>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
