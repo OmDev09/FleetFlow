@@ -80,9 +80,6 @@ export default function LoginPage() {
               <Link href="/forgot-password" className="text-teal-600 hover:text-teal-700">
                 Forgot password?
               </Link>
-              <Link href="/register" className="text-teal-600 hover:text-teal-700">
-                Register
-              </Link>
             </div>
             <button
               type="submit"
