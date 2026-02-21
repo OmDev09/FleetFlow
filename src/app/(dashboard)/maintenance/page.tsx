@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Wrench, Plus } from "lucide-react";
@@ -107,7 +107,7 @@ export default function MaintenancePage() {
               />
             </div>
             <button type="submit" disabled={loading} className="btn-primary">
-              {loading ? "Adding…" : "Add log (vehicle → In Shop)"}
+              {loading ? "Addingâ€¦" : "Add log (vehicle â†’ In Shop)"}
             </button>
           </form>
         </div>
@@ -131,7 +131,7 @@ export default function MaintenancePage() {
                     {l.vehicle?.name} ({l.vehicle?.licensePlate})
                   </td>
                   <td className="px-4 py-3">{l.description}</td>
-                  <td className="px-4 py-3">{l.cost != null ? `$${l.cost.toFixed(2)}` : "—"}</td>
+                  <td className="px-4 py-3">{l.cost != null ? `₹${l.cost.toFixed(2)}` : "â€”"}</td>
                   <td className="px-4 py-3">{new Date(l.performedAt).toLocaleDateString()}</td>
                 </tr>
               ))}
@@ -142,3 +142,4 @@ export default function MaintenancePage() {
     </div>
   );
 }
+

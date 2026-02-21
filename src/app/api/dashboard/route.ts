@@ -10,7 +10,7 @@ export async function GET() {
   const [vehicles, trips, cargoCount] = await Promise.all([
     prisma.vehicle.findMany({
       where: { status: { not: VEHICLE_STATUS.OUT_OF_SERVICE } },
-      select: { id: true, status: true, vehicleType: true, region: true },
+      select: { id: true, name: true, model: true, status: true, vehicleType: true, region: true },
     }),
     prisma.trip.findMany({
       where: { status: "DISPATCHED" },

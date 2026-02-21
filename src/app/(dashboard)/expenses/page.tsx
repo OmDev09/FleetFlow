@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Fuel, DollarSign, Plus } from "lucide-react";
@@ -114,9 +114,9 @@ export default function ExpensesPage() {
                 return (
                   <tr key={v.id} className="border-t border-slate-100">
                     <td className="py-2">{v.name} ({v.licensePlate})</td>
-                    <td className="py-2">${fuel.cost.toFixed(2)}</td>
-                    <td className="py-2">${exp.toFixed(2)}</td>
-                    <td className="py-2 font-medium">${total.toFixed(2)}</td>
+                    <td className="py-2">₹{fuel.cost.toFixed(2)}</td>
+                    <td className="py-2">₹{exp.toFixed(2)}</td>
+                    <td className="py-2 font-medium">₹{total.toFixed(2)}</td>
                   </tr>
                 );
               })}
@@ -225,7 +225,7 @@ export default function ExpensesPage() {
                   <tr key={f.id} className="border-b border-slate-100">
                     <td className="px-4 py-3">{f.vehicle?.name}</td>
                     <td className="px-4 py-3">{f.liters}</td>
-                    <td className="px-4 py-3">${f.cost.toFixed(2)}</td>
+                    <td className="px-4 py-3">₹{f.cost.toFixed(2)}</td>
                     <td className="px-4 py-3">{new Date(f.date).toLocaleDateString()}</td>
                   </tr>
                 ))}
@@ -313,7 +313,7 @@ export default function ExpensesPage() {
                   <tr key={e.id} className="border-b border-slate-100">
                     <td className="px-4 py-3">{e.vehicle?.name}</td>
                     <td className="px-4 py-3">{e.description}</td>
-                    <td className="px-4 py-3">${e.amount.toFixed(2)}</td>
+                    <td className="px-4 py-3">₹{e.amount.toFixed(2)}</td>
                     <td className="px-4 py-3">{new Date(e.date).toLocaleDateString()}</td>
                   </tr>
                 ))}
@@ -325,3 +325,4 @@ export default function ExpensesPage() {
     </div>
   );
 }
+

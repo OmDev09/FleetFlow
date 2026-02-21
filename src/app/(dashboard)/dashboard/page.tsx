@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Truck, AlertTriangle, Percent, Package } from "lucide-react";
@@ -12,7 +12,14 @@ type KPIs = {
   available: number;
 };
 
-type Vehicle = { id: string; status: string; vehicleType: string; region: string | null };
+type Vehicle = {
+  id: string;
+  name: string;
+  model: string;
+  status: string;
+  vehicleType: string;
+  region: string | null;
+};
 
 export default function CommandCenterPage() {
   const [kpis, setKpis] = useState<KPIs | null>(null);
@@ -20,6 +27,8 @@ export default function CommandCenterPage() {
   const [filterType, setFilterType] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [filterRegion, setFilterRegion] = useState<string>("");
+  const [search, setSearch] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("tripNo");
 
   useEffect(() => {
     fetch("/api/dashboard")
@@ -34,8 +43,38 @@ export default function CommandCenterPage() {
     if (filterType && v.vehicleType !== filterType) return false;
     if (filterStatus && v.status !== filterStatus) return false;
     if (filterRegion && v.region !== filterRegion) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const haystack = `${v.name} ${v.model} ${v.id} ${v.vehicleType} ${v.region ?? ""} ${v.status}`.toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
     return true;
   });
+
+  const sorted = [...filtered].sort((a, b) => {
+    switch (sortBy) {
+      case "vehicleId":
+        return a.id.localeCompare(b.id);
+      case "vehicleName":
+        return `${a.name} ${a.model}`.localeCompare(`${b.name} ${b.model}`);
+      case "type":
+        return a.vehicleType.localeCompare(b.vehicleType);
+      case "region":
+        return (a.region ?? "").localeCompare(b.region ?? "");
+      case "status":
+        return a.status.localeCompare(b.status);
+      default:
+        return 0;
+    }
+  });
+
+  function toNumericVehicleId(rawId: string): string {
+    let sum = 0;
+    for (let i = 0; i < rawId.length; i += 1) {
+      sum = (sum * 31 + rawId.charCodeAt(i)) % 1000000;
+    }
+    return `VH-${(sum + 100000).toString().padStart(6, "0")}`;
+  }
 
   const statusClass: Record<string, string> = {
     AVAILABLE: "pill-available",
@@ -126,23 +165,46 @@ export default function CommandCenterPage() {
             <option value="South">South</option>
             <option value="Central">Central</option>
           </select>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input-field w-auto min-w-[180px]"
+            placeholder="Search"
+          />
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="input-field w-auto min-w-[160px]"
+          >
+            <option value="tripNo">Sort by: Trip No</option>
+            <option value="vehicleId">Sort by: Vehicle ID</option>
+            <option value="vehicleName">Sort by: Vehicle Name/Model</option>
+            <option value="type">Sort by: Type</option>
+            <option value="region">Sort by: Region</option>
+            <option value="status">Sort by: Status</option>
+          </select>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
+                <th className="text-left px-4 py-3 font-medium text-slate-700">Trip No</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-700">Vehicle ID</th>
+                <th className="text-left px-4 py-3 font-medium text-slate-700">Vehicle Name/Model</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-700">Type</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-700">Region</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-700">Status</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((v) => (
+              {sorted.map((v, idx) => (
                 <tr key={v.id} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="px-4 py-3 font-mono">{v.id.slice(0, 8)}</td>
+                  <td className="px-4 py-3 font-mono">{idx + 1}</td>
+                  <td className="px-4 py-3 font-mono">{toNumericVehicleId(v.id)}</td>
+                  <td className="px-4 py-3">{v.name} / {v.model}</td>
                   <td className="px-4 py-3">{v.vehicleType}</td>
-                  <td className="px-4 py-3">{v.region || "—"}</td>
+                  <td className="px-4 py-3">{v.region || "-"}</td>
                   <td className="px-4 py-3">
                     <span className={`pill ${statusClass[v.status] || "pill-out-of-service"}`}>
                       {v.status.replace("_", " ")}

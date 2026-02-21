@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { BarChart3, Download } from "lucide-react";
@@ -70,7 +70,7 @@ export default function AnalyticsPage() {
       <html>
         <head><title>FleetFlow Analytics</title></head>
         <body>
-          <h1>FleetFlow — Operational Analytics</h1>
+          <h1>FleetFlow - Operational Analytics</h1>
           <p>Generated: ${new Date().toLocaleString()}</p>
           ${table.outerHTML}
         </body>
@@ -81,7 +81,7 @@ export default function AnalyticsPage() {
     printWindow.close();
   }
 
-  if (loading) return <p className="text-slate-500">Loading…</p>;
+  if (loading) return <p className="text-slate-500">Loading...</p>;
 
   return (
     <div className="space-y-6">
@@ -127,14 +127,14 @@ export default function AnalyticsPage() {
                   <td className="px-4 py-3">
                     {m.name} <span className="text-slate-500">({m.licensePlate})</span>
                   </td>
-                  <td className="px-4 py-3">{m.fuelEfficiencyKmPerL != null ? m.fuelEfficiencyKmPerL : "—"}</td>
-                  <td className="px-4 py-3">${m.totalFuelCost.toFixed(2)}</td>
-                  <td className="px-4 py-3">${m.totalMaintenanceCost.toFixed(2)}</td>
-                  <td className="px-4 py-3">${m.totalOperationalCost.toFixed(2)}</td>
-                  <td className="px-4 py-3">${m.revenue.toFixed(2)}</td>
-                  <td className="px-4 py-3">${m.acquisitionCost.toFixed(2)}</td>
+                  <td className="px-4 py-3">{m.fuelEfficiencyKmPerL != null ? m.fuelEfficiencyKmPerL : "N/A"}</td>
+                  <td className="px-4 py-3">₹{m.totalFuelCost.toFixed(2)}</td>
+                  <td className="px-4 py-3">₹{m.totalMaintenanceCost.toFixed(2)}</td>
+                  <td className="px-4 py-3">₹{m.totalOperationalCost.toFixed(2)}</td>
+                  <td className="px-4 py-3">₹{m.revenue.toFixed(2)}</td>
+                  <td className="px-4 py-3">₹{m.acquisitionCost.toFixed(2)}</td>
                   <td className="px-4 py-3">
-                    {m.roiPercent != null ? `${m.roiPercent}%` : "—"}
+                    {m.roiPercent != null ? `${m.roiPercent}%` : "N/A"}
                   </td>
                 </tr>
               ))}
@@ -145,3 +145,4 @@ export default function AnalyticsPage() {
     </div>
   );
 }
+

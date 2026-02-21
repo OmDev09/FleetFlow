@@ -17,8 +17,7 @@ export default function ThemeToggle() {
 
   useEffect(() => {
     const stored = localStorage.getItem("fleetflow-theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initial: ThemeMode = stored === "dark" || stored === "light" ? stored : prefersDark ? "dark" : "light";
+    const initial: ThemeMode = stored === "dark" || stored === "light" ? stored : "light";
     setTheme(initial);
     applyTheme(initial);
     setReady(true);
