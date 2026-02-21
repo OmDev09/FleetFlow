@@ -15,20 +15,20 @@ function monthLabelFromKey(key: string): string {
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const [vehicles, fuelLogs, maintenanceLogs, trips, expenses] = await Promise.all([
-    prisma.vehicle.findMany({
-      where: { status: { not: "OUT_OF_SERVICE" } },
-      include: { fuelLogs: true, maintenanceLogs: true, expenses: true },
-    }),
-    prisma.fuelLog.findMany(),
-    prisma.maintenanceLog.findMany(),
-    prisma.trip.findMany({
-      where: { status: "COMPLETED" },
-      include: { vehicle: true },
-    }),
-    prisma.expense.findMany(),
-  ]);
+  try {
+    const [vehicles, fuelLogs, maintenanceLogs, trips, expenses] = await Promise.all([
+      prisma.vehicle.findMany({
+        where: { status: { not: "OUT_OF_SERVICE" } },
+        include: { fuelLogs: true, maintenanceLogs: true, expenses: true },
+      }),
+      prisma.fuelLog.findMany(),
+      prisma.maintenanceLog.findMany(),
+      prisma.trip.findMany({
+        where: { status: "COMPLETED" },
+        include: { vehicle: true },
+      }),
+      prisma.expense.findMany(),
+    ]);
 
   const fuelByVehicle: Record<string, { liters: number; cost: number; km: number }> = {};
   trips.forEach((t) => {
@@ -86,7 +86,7 @@ export async function GET() {
     { revenue: number; fuelCost: number; maintenanceCost: number; otherExpense: number; fuelLiters: number; tripKm: number }
   > = {};
 
-  function initMonth(key: string) {
+  const initMonth = (key: string) => {
     if (!monthlyMap[key]) {
       monthlyMap[key] = {
         revenue: 0,
@@ -97,7 +97,7 @@ export async function GET() {
         tripKm: 0,
       };
     }
-  }
+  };
 
   fuelLogs.forEach((f) => {
     const key = monthKeyFromDate(f.date);
@@ -179,17 +179,20 @@ export async function GET() {
   );
   const utilizationRatePercent = vehicles.length > 0 ? (utilizedVehicleIds.size / vehicles.length) * 100 : 0;
 
-  return NextResponse.json({
-    vehicleMetrics,
-    fuelEfficiencyTrend,
-    topCostlyVehicles,
-    monthlyFinancials,
-    summary: {
-      totalFleet: vehicles.length,
-      totalTripsCompleted: trips.length,
-      totalFuelCost: Math.round(totalFuelCost * 100) / 100,
-      fleetRoiPercent: fleetRoiPercent != null ? Math.round(fleetRoiPercent * 10) / 10 : null,
-      utilizationRatePercent: Math.round(utilizationRatePercent * 10) / 10,
-    },
-  });
+    return NextResponse.json({
+      vehicleMetrics,
+      fuelEfficiencyTrend,
+      topCostlyVehicles,
+      monthlyFinancials,
+      summary: {
+        totalFleet: vehicles.length,
+        totalTripsCompleted: trips.length,
+        totalFuelCost: Math.round(totalFuelCost * 100) / 100,
+        fleetRoiPercent: fleetRoiPercent != null ? Math.round(fleetRoiPercent * 10) / 10 : null,
+        utilizationRatePercent: Math.round(utilizationRatePercent * 10) / 10,
+      },
+    });
+  } catch {
+    return NextResponse.json({ error: "Failed to load analytics" }, { status: 500 });
+  }
 }

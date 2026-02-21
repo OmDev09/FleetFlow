@@ -77,16 +77,34 @@ export default function AnalyticsPage() {
     utilizationRatePercent: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const load = useCallback(() => {
+    setError("");
     fetch("/api/analytics")
-      .then((r) => r.json())
+      .then(async (r) => {
+        const raw = await r.text();
+        if (!raw) throw new Error("Empty response from analytics API");
+        let data: AnalyticsResponse | null = null;
+        try {
+          data = JSON.parse(raw) as AnalyticsResponse;
+        } catch {
+          throw new Error("Invalid analytics response");
+        }
+        if (!r.ok) {
+          throw new Error("Failed to load analytics");
+        }
+        return data;
+      })
       .then((data: AnalyticsResponse) => {
         setMetrics(data.vehicleMetrics ?? []);
         setFuelEfficiencyTrend(data.fuelEfficiencyTrend ?? []);
         setTopCostlyVehicles(data.topCostlyVehicles ?? []);
         setMonthlyFinancials(data.monthlyFinancials ?? []);
         if (data.summary) setSummary(data.summary);
+      })
+      .catch((e: unknown) => {
+        setError(e instanceof Error ? e.message : "Failed to load analytics");
       })
       .finally(() => setLoading(false));
   }, []);
@@ -152,6 +170,7 @@ export default function AnalyticsPage() {
   }
 
   if (loading) return <p className="text-slate-500">Loading...</p>;
+  if (error) return <p className="text-rose-600">{error}</p>;
 
   return (
     <div className="space-y-6">
