@@ -41,6 +41,7 @@ export default function MaintenancePage() {
           cost: form.cost ? Number(form.cost) : undefined,
         }),
       });
+      window.dispatchEvent(new Event("fleetflow:alerts-refresh"));
       setShowForm(false);
       setForm({ vehicleId: "", description: "", cost: "" });
       load();
@@ -107,7 +108,7 @@ export default function MaintenancePage() {
               />
             </div>
             <button type="submit" disabled={loading} className="btn-primary">
-              {loading ? "Addingâ€¦" : "Add log (vehicle â†’ In Shop)"}
+              {loading ? "Addingâ€¦" : "Add log (vehicle In Shop)"}
             </button>
           </form>
         </div>
@@ -142,4 +143,3 @@ export default function MaintenancePage() {
     </div>
   );
 }
-
