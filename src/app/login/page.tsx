@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -10,6 +10,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [splashPhase, setSplashPhase] = useState<"in" | "out" | "done">("in");
+
+  useEffect(() => {
+    const outTimer = setTimeout(() => setSplashPhase("out"), 900);
+    const doneTimer = setTimeout(() => setSplashPhase("done"), 1500);
+    return () => {
+      clearTimeout(outTimer);
+      clearTimeout(doneTimer);
+    };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -36,12 +46,34 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-md">
-        <div className="card p-8 shadow-lg">
+    <div className="relative min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_15%_20%,#99f6e4_0%,transparent_38%),radial-gradient(circle_at_80%_15%,#93c5fd_0%,transparent_35%),linear-gradient(135deg,#e2e8f0_0%,#cbd5e1_48%,#a5f3fc_100%)] px-4 overflow-hidden dark:bg-[radial-gradient(circle_at_15%_20%,#134e4a_0%,transparent_38%),radial-gradient(circle_at_80%_15%,#1e3a8a_0%,transparent_35%),linear-gradient(135deg,#020617_0%,#0f172a_48%,#0f766e_100%)]">
+      {splashPhase !== "done" && (
+        <div
+          className={[
+            "absolute inset-0 z-20 flex items-center justify-center bg-[radial-gradient(circle_at_15%_20%,#99f6e4_0%,transparent_38%),radial-gradient(circle_at_80%_15%,#93c5fd_0%,transparent_35%),linear-gradient(135deg,#e2e8f0_0%,#cbd5e1_48%,#a5f3fc_100%)] dark:bg-[radial-gradient(circle_at_15%_20%,#134e4a_0%,transparent_38%),radial-gradient(circle_at_80%_15%,#1e3a8a_0%,transparent_35%),linear-gradient(135deg,#020617_0%,#0f172a_48%,#0f766e_100%)]",
+            splashPhase === "in" ? "animate-fleet-splash-in" : "animate-fleet-splash-out",
+          ].join(" ")}
+        >
+          <div className="relative flex items-center justify-center">
+            <div className="absolute h-52 w-52 rounded-full bg-teal-200/50 blur-3xl animate-fleet-pulse dark:bg-teal-400/20" />
+            <div className="absolute h-36 w-36 rounded-full border border-teal-300/70 animate-fleet-pulse dark:border-teal-300/30" />
+            <h1 className="relative font-display text-6xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+              FleetFlow
+            </h1>
+          </div>
+        </div>
+      )}
+
+      <div
+        className={[
+          "w-full max-w-md",
+          splashPhase === "done" ? "opacity-100 animate-fleet-card-in" : "opacity-0 pointer-events-none",
+        ].join(" ")}
+      >
+        <div className="glass-card p-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-slate-900">FleetFlow</h1>
-            <p className="text-slate-600 mt-1">Fleet & Logistics Management</p>
+            <h1 className="font-display text-3xl font-semibold text-slate-900 dark:text-slate-100">FleetFlow</h1>
+            <p className="text-slate-700 mt-1 dark:text-slate-300">Fleet & Logistics Management</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -74,7 +106,7 @@ export default function LoginPage() {
               />
             </div>
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+              <p className="text-sm text-red-600 bg-red-50/85 px-3 py-2 rounded-lg dark:bg-red-500/15 dark:text-red-200">{error}</p>
             )}
             <div className="flex items-center justify-between text-sm">
               <Link href="/forgot-password" className="text-teal-600 hover:text-teal-700">
@@ -86,10 +118,10 @@ export default function LoginPage() {
               disabled={loading}
               className="btn-primary w-full py-2.5 disabled:opacity-50"
             >
-              {loading ? "Signing in…" : "Sign in"}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
-          <p className="mt-6 text-center text-xs text-slate-500">
+          <p className="mt-6 text-center text-xs text-slate-600 dark:text-slate-400">
             Demo: manager@fleetflow.com / manager123 (Manager, Dispatcher, Safety, Finance)
           </p>
         </div>
