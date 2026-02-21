@@ -33,10 +33,17 @@ export default function CommandCenterPage() {
 
   const load = useCallback(() => {
     fetch("/api/dashboard")
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) throw new Error("Failed to load dashboard");
+        return r.json();
+      })
       .then((data) => {
         setKpis(data.kpis);
         setVehicles(data.vehicles || []);
+      })
+      .catch(() => {
+        setKpis(null);
+        setVehicles([]);
       });
   }, []);
 

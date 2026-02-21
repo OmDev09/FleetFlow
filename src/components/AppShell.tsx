@@ -43,10 +43,15 @@ export default function AppShell({
   useEffect(() => {
     let mounted = true;
     async function loadAlerts() {
-      const res = await fetch("/api/alerts");
-      if (!res.ok) return;
-      const data = await res.json();
-      if (mounted) setAlerts(data.alerts ?? []);
+      try {
+        const res = await fetch("/api/alerts");
+        const raw = await res.text();
+        if (!res.ok || !raw) return;
+        const data = JSON.parse(raw) as { alerts?: { id: string; level: "critical" | "warning"; title: string; message: string }[] };
+        if (mounted) setAlerts(data.alerts ?? []);
+      } catch {
+        // Ignore transient notification fetch failures
+      }
     }
 
     if (pathname === "/dashboard") {
