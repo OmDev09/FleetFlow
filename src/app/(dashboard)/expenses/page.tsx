@@ -1,7 +1,8 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Fuel, DollarSign, Plus } from "lucide-react";
+import { usePollingRefresh } from "@/lib/usePollingRefresh";
 
 type Vehicle = { id: string; name: string; licensePlate: string };
 type ExpenseRow = { id: string; description: string; amount: number; date: string; vehicle: Vehicle };
@@ -18,15 +19,13 @@ export default function ExpensesPage() {
   const [fuelForm, setFuelForm] = useState({ vehicleId: "", liters: "", cost: "", date: new Date().toISOString().slice(0, 10) });
   const [loading, setLoading] = useState(false);
 
-  function load() {
+  const load = useCallback(() => {
     fetch("/api/expenses").then((r) => r.json()).then(setExpenses);
     fetch("/api/fuel").then((r) => r.json()).then(setFuelLogs);
     fetch("/api/vehicles").then((r) => r.json()).then(setVehicles);
-  }
-
-  useEffect(() => {
-    load();
   }, []);
+
+  usePollingRefresh(load, 5000);
 
   const today = new Date().toISOString().slice(0, 10);
 

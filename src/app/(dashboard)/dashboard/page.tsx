@@ -1,7 +1,8 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Truck, AlertTriangle, Percent, Package } from "lucide-react";
+import { usePollingRefresh } from "@/lib/usePollingRefresh";
 
 type KPIs = {
   activeFleetOnTrip: number;
@@ -30,7 +31,7 @@ export default function CommandCenterPage() {
   const [search, setSearch] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("tripNo");
 
-  useEffect(() => {
+  const load = useCallback(() => {
     fetch("/api/dashboard")
       .then((r) => r.json())
       .then((data) => {
@@ -38,6 +39,8 @@ export default function CommandCenterPage() {
         setVehicles(data.vehicles || []);
       });
   }, []);
+
+  usePollingRefresh(load, 5000);
 
   const filtered = vehicles.filter((v) => {
     if (filterType && v.vehicleType !== filterType) return false;
