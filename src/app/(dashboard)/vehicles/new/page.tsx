@@ -11,6 +11,7 @@ export default function NewVehiclePage() {
     model: "",
     licensePlate: "",
     maxLoadCapacityKg: "",
+    odometerKm: "",
     vehicleType: "VAN",
     region: "",
     acquisitionCost: "",
@@ -29,6 +30,7 @@ export default function NewVehiclePage() {
         body: JSON.stringify({
           ...form,
           maxLoadCapacityKg: Number(form.maxLoadCapacityKg) || 0,
+          odometerKm: form.odometerKm ? Number(form.odometerKm) : undefined,
           acquisitionCost: form.acquisitionCost ? Number(form.acquisitionCost) : undefined,
           region: form.region || undefined,
         }),
@@ -93,6 +95,18 @@ export default function NewVehiclePage() {
             onChange={(e) => setForm((f) => ({ ...f, maxLoadCapacityKg: e.target.value }))}
             className="input-field"
             required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Initial Odometer (km)</label>
+          <input
+            type="number"
+            min="0"
+            step="0.1"
+            value={form.odometerKm}
+            onChange={(e) => setForm((f) => ({ ...f, odometerKm: e.target.value }))}
+            className="input-field"
+            placeholder="e.g. 45000"
           />
         </div>
         <div>

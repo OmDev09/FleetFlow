@@ -9,6 +9,7 @@ const createSchema = z.object({
   model: z.string().min(1),
   licensePlate: z.string().min(1),
   maxLoadCapacityKg: z.number().positive(),
+  odometerKm: z.number().min(0).optional(),
   vehicleType: z.enum(["TRUCK", "VAN", "BIKE"]),
   region: z.string().optional(),
   acquisitionCost: z.number().optional(),
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
     const data = createSchema.parse({
       ...body,
       maxLoadCapacityKg: Number(body.maxLoadCapacityKg),
+      odometerKm: body.odometerKm != null ? Number(body.odometerKm) : undefined,
       acquisitionCost: body.acquisitionCost != null ? Number(body.acquisitionCost) : undefined,
     });
     const existing = await prisma.vehicle.findUnique({
@@ -59,7 +61,7 @@ export async function POST(request: NextRequest) {
       data: {
         ...data,
         status: VEHICLE_STATUS.AVAILABLE,
-        odometerKm: 0,
+        odometerKm: data.odometerKm ?? 0,
       },
     });
     return NextResponse.json(vehicle);

@@ -17,6 +17,10 @@ type Driver = {
 export default function DriversPage() {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [tripCounts, setTripCounts] = useState<Record<string, { total: number; completed: number }>>({});
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterCompliance, setFilterCompliance] = useState("");
+  const [filterVehicleType, setFilterVehicleType] = useState("");
 
   useEffect(() => {
     fetch("/api/drivers")
@@ -52,6 +56,28 @@ export default function DriversPage() {
     SUSPENDED: "pill-out-of-service",
   };
 
+  const filteredDrivers = drivers.filter((d) => {
+    const expired = new Date(d.licenseExpiry) < new Date();
+
+    if (filterStatus && d.status !== filterStatus) return false;
+    if (filterCompliance === "VALID" && expired) return false;
+    if (filterCompliance === "EXPIRED" && !expired) return false;
+    if (filterVehicleType && !d.vehicleTypes.split(",").map((t) => t.trim()).includes(filterVehicleType)) {
+      return false;
+    }
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const completion = tripCounts[d.id];
+      const haystack = `${d.name} ${d.licenseNumber} ${d.vehicleTypes} ${d.status} ${
+        completion ? `${completion.completed}/${completion.total}` : ""
+      }`.toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+
+    return true;
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -60,6 +86,45 @@ export default function DriversPage() {
       </div>
 
       <div className="card overflow-hidden">
+        <div className="p-4 border-b border-slate-200 flex flex-wrap items-center gap-3">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name, license, type..."
+            className="input-field w-auto min-w-[220px]"
+          />
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="input-field w-auto min-w-[130px]"
+          >
+            <option value="">All status</option>
+            <option value="AVAILABLE">Available</option>
+            <option value="ON_DUTY">On Duty</option>
+            <option value="OFF_DUTY">Off Duty</option>
+            <option value="SUSPENDED">Suspended</option>
+          </select>
+          <select
+            value={filterCompliance}
+            onChange={(e) => setFilterCompliance(e.target.value)}
+            className="input-field w-auto min-w-[130px]"
+          >
+            <option value="">All compliance</option>
+            <option value="VALID">Valid</option>
+            <option value="EXPIRED">Expired</option>
+          </select>
+          <select
+            value={filterVehicleType}
+            onChange={(e) => setFilterVehicleType(e.target.value)}
+            className="input-field w-auto min-w-[130px]"
+          >
+            <option value="">All vehicle types</option>
+            <option value="TRUCK">Truck</option>
+            <option value="VAN">Van</option>
+            <option value="BIKE">Bike</option>
+          </select>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-200">
@@ -76,7 +141,7 @@ export default function DriversPage() {
               </tr>
             </thead>
             <tbody>
-              {drivers.map((d) => {
+              {filteredDrivers.map((d) => {
                 const expired = new Date(d.licenseExpiry) < new Date();
                 const c = tripCounts[d.id];
                 const completionRate = c && c.total > 0 ? Math.round((c.completed / c.total) * 100) : null;
