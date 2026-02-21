@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { prisma } from "./prisma";
 import * as bcrypt from "bcryptjs";
 import type { Role } from "./domain";
+import { ROLE } from "./domain";
 
 const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "fleetflow-dev-secret-change-in-production"
@@ -65,6 +66,38 @@ export async function login(email: string, password: string): Promise<{ ok: bool
   if (!user) return { ok: false, error: "Invalid email or password" };
   const valid = await verifyPassword(password, user.password);
   if (!valid) return { ok: false, error: "Invalid email or password" };
+  const token = await createSession({
+    userId: user.id,
+    email: user.email,
+    role: user.role as Role,
+  });
+  await setSessionCookie(token);
+  return { ok: true };
+}
+
+export async function register(
+  name: string,
+  email: string,
+  password: string,
+  role: Role
+): Promise<{ ok: boolean; error?: string }> {
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) return { ok: false, error: "Email already in use" };
+
+  if (!Object.values(ROLE).includes(role)) {
+    return { ok: false, error: "Invalid role" };
+  }
+
+  const passwordHash = await hashPassword(password);
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: passwordHash,
+      role,
+    },
+  });
+
   const token = await createSession({
     userId: user.id,
     email: user.email,
