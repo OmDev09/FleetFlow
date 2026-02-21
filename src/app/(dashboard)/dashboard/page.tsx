@@ -22,9 +22,20 @@ type Vehicle = {
   region: string | null;
 };
 
+type PendingCargoItem = {
+  id: string;
+  description: string;
+  weightKg: number;
+  origin: string | null;
+  destination: string | null;
+  createdAt: string;
+};
+
 export default function CommandCenterPage() {
   const [kpis, setKpis] = useState<KPIs | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [pendingCargoItems, setPendingCargoItems] = useState<PendingCargoItem[]>([]);
+  const [showPendingCargoList, setShowPendingCargoList] = useState(false);
   const [filterType, setFilterType] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [filterRegion, setFilterRegion] = useState<string>("");
@@ -40,10 +51,12 @@ export default function CommandCenterPage() {
       .then((data) => {
         setKpis(data.kpis);
         setVehicles(data.vehicles || []);
+        setPendingCargoItems(data.pendingCargoItems || []);
       })
       .catch(() => {
         setKpis(null);
         setVehicles([]);
+        setPendingCargoItems([]);
       });
   }, []);
 
@@ -136,7 +149,61 @@ export default function CommandCenterPage() {
             <div>
               <p className="text-sm text-slate-600">Pending Cargo</p>
               <p className="text-2xl font-bold text-slate-900">{kpis.pendingCargo}</p>
+              <button
+                type="button"
+                onClick={() => setShowPendingCargoList(true)}
+                className="mt-1 text-xs text-teal-700 hover:text-teal-800 dark:text-teal-300 dark:hover:text-teal-200"
+              >
+                View list
+              </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showPendingCargoList && (
+        <div className="fixed inset-0 z-40" onClick={() => setShowPendingCargoList(false)}>
+          <div className="absolute inset-0 bg-black/25" />
+          <div
+            className="absolute right-6 top-20 w-[680px] max-w-[calc(100vw-3rem)] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Pending Cargo List</h2>
+              <button
+                type="button"
+                onClick={() => setShowPendingCargoList(false)}
+                className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                Close
+              </button>
+            </div>
+            {pendingCargoItems.length === 0 ? (
+              <p className="p-2 text-sm text-slate-600 dark:text-slate-300">No pending cargo.</p>
+            ) : (
+              <div className="max-h-[70vh] overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 border-b border-slate-200 dark:bg-slate-800 dark:border-slate-700">
+                    <tr>
+                      <th className="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-200">Description</th>
+                      <th className="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-200">Weight (kg)</th>
+                      <th className="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-200">Route</th>
+                      <th className="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-200">Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pendingCargoItems.map((c) => (
+                      <tr key={c.id} className="border-b border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/60">
+                        <td className="px-4 py-3">{c.description}</td>
+                        <td className="px-4 py-3">{c.weightKg}</td>
+                        <td className="px-4 py-3">{(c.origin || "-") + " -> " + (c.destination || "-")}</td>
+                        <td className="px-4 py-3">{new Date(c.createdAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}
