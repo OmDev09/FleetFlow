@@ -18,8 +18,23 @@ FleetFlow is a modular Fleet & Logistics Management System designed to digitize 
 - Frontend: Next.js 14, React, TypeScript, Tailwind CSS
 - Backend: Next.js API Routes
 - ORM: Prisma
-- Database: SQLite
+- Database: PostgreSQL
 - Auth: JWT-based session with role-based access control
+
+## Database Setup (PostgreSQL)
+
+Set `DATABASE_URL` in your environment:
+
+```env
+DATABASE_URL=
+```
+
+Then run:
+
+```bash
+npm run db:push
+npm run db:seed
+```
 
 | Role              | Email                                                       | Password      |
 | ----------------- | ----------------------------------------------------------- | ------------- |
