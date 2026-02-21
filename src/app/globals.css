@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --fleet-navy: #0f172a;
+  --fleet-teal: #0d9488;
+  --fleet-amber: #f59e0b;
+  --fleet-emerald: #059669;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+@layer components {
+  .pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .pill-available { @apply bg-emerald-100 text-emerald-800; }
+  .pill-on-trip { @apply bg-amber-100 text-amber-800; }
+  .pill-in-shop { @apply bg-rose-100 text-rose-800; }
+  .pill-out-of-service { @apply bg-slate-200 text-slate-600; }
+  .pill-draft { @apply bg-slate-100 text-slate-700; }
+  .pill-dispatched { @apply bg-blue-100 text-blue-800; }
+  .pill-completed { @apply bg-emerald-100 text-emerald-800; }
+  .pill-cancelled { @apply bg-slate-200 text-slate-600; }
+  .btn-primary {
+    @apply rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2;
+  }
+  .btn-secondary {
+    @apply rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2;
+  }
+  .input-field {
+    @apply block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500;
+  }
+  .card {
+    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+  }
+}
