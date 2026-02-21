@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { BarChart3, Download } from "lucide-react";
 import {
   Bar,
@@ -13,6 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { usePollingRefresh } from "@/lib/usePollingRefresh";
 
 type VehicleMetric = {
   vehicleId: string;
@@ -77,7 +78,7 @@ export default function AnalyticsPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     fetch("/api/analytics")
       .then((r) => r.json())
       .then((data: AnalyticsResponse) => {
@@ -89,6 +90,8 @@ export default function AnalyticsPage() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  usePollingRefresh(load, 5000);
 
   function formatCurrency(value: number): string {
     return `Rs. ${value.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;

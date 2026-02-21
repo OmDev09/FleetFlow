@@ -1,7 +1,8 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Wrench, Plus } from "lucide-react";
+import { usePollingRefresh } from "@/lib/usePollingRefresh";
 
 type Vehicle = { id: string; name: string; licensePlate: string; status: string };
 type Log = {
@@ -19,14 +20,12 @@ export default function MaintenancePage() {
   const [form, setForm] = useState({ vehicleId: "", description: "", cost: "" });
   const [loading, setLoading] = useState(false);
 
-  function load() {
+  const load = useCallback(() => {
     fetch("/api/maintenance").then((r) => r.json()).then(setLogs);
     fetch("/api/vehicles").then((r) => r.json()).then(setVehicles);
-  }
-
-  useEffect(() => {
-    load();
   }, []);
+
+  usePollingRefresh(load, 5000);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

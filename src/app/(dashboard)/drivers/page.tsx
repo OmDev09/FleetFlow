@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { UserCheck, AlertCircle } from "lucide-react";
 import type { DriverStatus } from "@/lib/domain";
+import { usePollingRefresh } from "@/lib/usePollingRefresh";
 
 type Driver = {
   id: string;
@@ -22,7 +23,7 @@ export default function DriversPage() {
   const [filterCompliance, setFilterCompliance] = useState("");
   const [filterVehicleType, setFilterVehicleType] = useState("");
 
-  useEffect(() => {
+  const load = useCallback(() => {
     fetch("/api/drivers")
       .then((r) => r.json())
       .then((list: Driver[]) => {
@@ -40,13 +41,15 @@ export default function DriversPage() {
       });
   }, []);
 
+  usePollingRefresh(load, 5000);
+
   async function setStatus(id: string, status: DriverStatus) {
     await fetch(`/api/drivers/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
-    setDrivers((prev) => prev.map((d) => (d.id === id ? { ...d, status } : d)));
+    load();
   }
 
   const statusPill: Record<string, string> = {

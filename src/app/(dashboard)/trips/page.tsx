@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Plus,
   Send,
@@ -9,6 +9,7 @@ import {
   MapPin,
 } from "lucide-react";
 import type { TripStatus } from "@/lib/domain";
+import { usePollingRefresh } from "@/lib/usePollingRefresh";
 
 type Vehicle = { id: string; name: string; licensePlate: string; maxLoadCapacityKg: number; vehicleType: string };
 type Driver = { id: string; name: string; licenseNumber: string; vehicleTypes: string };
@@ -25,12 +26,68 @@ type Trip = {
   driver: Driver;
 };
 
+const timelineStages = ["Draft", "Dispatched", "On Route", "Completed"] as const;
+
 const statusPill: Record<string, string> = {
   DRAFT: "pill-draft",
   DISPATCHED: "pill-dispatched",
   COMPLETED: "pill-completed",
   CANCELLED: "pill-cancelled",
 };
+
+function getCurrentStageIndex(trip: Trip): number {
+  if (trip.status === "DRAFT") return 0;
+  if (trip.status === "DISPATCHED") return 2;
+  if (trip.status === "COMPLETED") return 3;
+  if (trip.status === "CANCELLED") {
+    return trip.startOdometerKm != null ? 2 : 0;
+  }
+  return 0;
+}
+
+function TripTimeline({ trip }: { trip: Trip }) {
+  const currentStage = getCurrentStageIndex(trip);
+  return (
+    <div className="min-w-[360px]">
+      <div className="flex items-center gap-1.5">
+        {timelineStages.map((stage, idx) => {
+          const isDone = idx < currentStage;
+          const isCurrent = idx === currentStage;
+          return (
+            <div key={stage} className="flex items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1">
+                <span
+                  className={[
+                    "h-2.5 w-2.5 rounded-full border",
+                    isCurrent
+                      ? "border-teal-600 bg-teal-600"
+                      : isDone
+                        ? "border-teal-400 bg-teal-400"
+                        : "border-slate-300 bg-white",
+                  ].join(" ")}
+                />
+                <span
+                  className={[
+                    "text-[10px] whitespace-nowrap",
+                    isCurrent ? "font-semibold text-teal-700" : isDone ? "text-slate-700" : "text-slate-400",
+                  ].join(" ")}
+                >
+                  {stage}
+                </span>
+              </div>
+              {idx < timelineStages.length - 1 && (
+                <span className={["h-px w-7", idx < currentStage ? "bg-teal-400" : "bg-slate-200"].join(" ")} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {trip.status === "CANCELLED" && (
+        <p className="mt-1 text-[10px] font-medium text-rose-600">Cancelled</p>
+      )}
+    </div>
+  );
+}
 
 export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -50,16 +107,14 @@ export default function TripsPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function load() {
+  const load = useCallback(() => {
     fetch("/api/trips").then((r) => r.json()).then(setTrips);
     fetch("/api/vehicles?available=true").then((r) => r.json()).then(setVehicles);
     fetch("/api/drivers?available=true").then((r) => r.json()).then(setDrivers);
     fetch("/api/cargo?pending=true").then((r) => r.json()).then(setCargo);
-  }
-
-  useEffect(() => {
-    load();
   }, []);
+
+  usePollingRefresh(load, 5000);
 
   const vehicle = vehicles.find((v) => v.id === form.vehicleId);
   const maxCap = vehicle?.maxLoadCapacityKg ?? 0;
@@ -251,6 +306,7 @@ export default function TripsPage() {
                 <th className="text-left px-4 py-3 font-medium text-slate-700">Vehicle / Driver</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-700">Cargo (kg)</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-700">Status</th>
+                <th className="text-left px-4 py-3 font-medium text-slate-700">Timeline</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-700">Actions</th>
               </tr>
             </thead>
@@ -271,6 +327,9 @@ export default function TripsPage() {
                     <span className={`pill ${statusPill[t.status] || "pill-draft"}`}>
                       {t.status}
                     </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <TripTimeline trip={t} />
                   </td>
                   <td className="px-4 py-3 flex flex-wrap gap-2">
                     {t.status === "DRAFT" && (

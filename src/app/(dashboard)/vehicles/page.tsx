@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Truck } from "lucide-react";
 import type { VehicleType, VehicleStatus } from "@/lib/domain";
+import { usePollingRefresh } from "@/lib/usePollingRefresh";
 
 type Vehicle = {
   id: string;
@@ -28,12 +29,14 @@ export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     fetch("/api/vehicles")
       .then((r) => r.json())
       .then(setVehicles)
       .finally(() => setLoading(false));
   }, []);
+
+  usePollingRefresh(load, 5000);
 
   async function toggleOutOfService(v: Vehicle) {
     const next = v.status === "OUT_OF_SERVICE" ? "AVAILABLE" : "OUT_OF_SERVICE";
